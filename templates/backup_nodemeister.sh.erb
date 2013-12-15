@@ -1,0 +1,58 @@
+#!/bin/bash
+#
+# Script to maintain X days backups of nodemeister in a specified path,
+# owned by a specified user. This script does a POSTGRES dump as a backup.
+# This script should either be run as the postgres user, or a user with a
+# valid .pgpass file to access the nodemeister database.
+#
+#############################################################################################
+#
+# WARNING - WARNING - WARNING
+# This file is managed by Puppet as a template.
+#
+#############################################################################################
+
+# BEGIN puppet templated values
+BACKUP_DIR=<%= @save_dir %>
+DAYS_TO_KEEP=<%= @keep_days %>
+PUPPET_HOSTNAME=<%= @hostname %>
+HOST=<%= @database_host %>
+PORT=<%= @database_port %>
+USERNAME=<%= @database_username %>
+DB_NAME=<%= @database_name %>
+export PGPASSFILE=<%= @pgpass_path %>
+# END puppet templated values
+
+LOCK_WAIT_TIMEOUT=600000 # wait 10 minutes for shared table lock, then abort
+
+set -e -x
+
+BACKUP_FILE="${BACKUP_DIR}/nodemeister_${PUPPET_HOSTNAME}_`date +%Y-%m-%d_%H-%M-%S`.pgdump"
+
+# define an EXIT handler that will remove the pgdump file if the backup fails
+onexit() {
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Execution failed unexpectedly. Cleaning up..."
+        rm -f $BACKUP_FILE
+    fi
+}
+trap onexit EXIT
+
+# do the database dump
+pg_dump --file=${BACKUP_FILE} --format=custom --oids --lock-wait-timeout=${LOCK_WAIT_TIMEOUT} --host=${HOST} --port=${PORT} --username=${USERNAME} --no-password ${DB_NAME}
+
+if [[ ! -f ${BACKUP_FILE} ]]
+then
+    exit 1
+fi
+
+filesize=$(wc -c < "$BACKUP_FILE")
+# pgdump of schema only (no data) is 65609b as of nodemeister 0.0.1; therefore a dump with data MUST be larger than this
+MIN_SIZE=65609
+if [ $filesize -lt $MIN_SIZE ]; then
+    echo "backup file is ${filesize}b - correct backup cannot be less than ${MIN_SIZE}b"
+    exit 2
+fi
+
+# finally, delete old backups - this will ONLY happen if the current backup was successful
+find ${BACKUP_DIR} -mtime +${DAYS_TO_KEEP} -type f -print -delete

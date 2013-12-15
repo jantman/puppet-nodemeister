@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# This is a simple ENC external_nodes terminus script for NodeMeister
+# This file is managed by the nodemeister::terminus puppet module as a template.
+#
+
+# the following configuration should be templated by Puppet:
+
+ENC_HOST="<%= @enc_host %>"
+
+#
+# END CONFIGURATION
+#
+
+NODE=$1
+
+URL="http://${ENC_HOST}/enc/puppet/${NODE}"
+
+VER="0.0.1"
+
+CURL_VER=`curl --version | grep "^curl" | awk '{print $2}'`
+
+curl --connect-timeout 10 --max-time 10 --no-keepalive --fail --silent --user-agent "nodemeister_terminus.sh/${VER} using curl/${CURL_VER}" -o - $URL
