@@ -264,7 +264,6 @@ class nodemeister::install(
       'iniparse==0.3.1',
       'jsonfield==0.9.17',
       'mimeparse==0.1.3',
-      'newrelic==1.11.0.55',
       'psycopg2',
       'python-cjson==1.0.5',
       'python-dateutil==2.1',
@@ -278,20 +277,28 @@ class nodemeister::install(
   }
 
   # the fullhistory package that we're using (django 1.5 compatible) is a
-  # local CMGd patched version of the current 0.3.1 upstream. Until we get
-  # a PR out there and get a new version released upstream, we'll need to
-  # install this separately, with a separate pip call for the mirror.
-  python::virtualenv::package::install { 'fullhistory':
-    ve_user     => $user,
-    ve_group    => $group,
-    virtualenv  => "${installdir}/venv",
-    require     => Python::Virtualenv["${installdir}/venv"],
+  # local CMGd patched version of the current 0.3.1 upstream. The pull request
+  # for it is still open:
+  # https://github.com/cuker/django-fullhistory/pull/3
+  # Until that's merged and released to PyPI, we need to install the branch
+  # that PR is based off of.
+  $fullhistory_egg = "git+https://github.com/RobCombs/django-fullhistory.git@0.3.2#egg=fullhistory"
+  exec { 'install-fullhistory-fork':
+    user      => $user,
+    group     => $group,
+    cwd       => "${installdir}/venv",
+    command   => "${installdir}/venv/bin/pip install -e ${fullhistory_egg}",
+    creates   => "${installdir}/venv/lib/python2.6/site-packages/fullhistory",
+    logoutput => on_failure,
+    tries     => 3,
+    try_sleep => 3,
+    require   => Python::Virtualenv["${installdir}/venv"],
   }
 
   vcsrepo { "${installdir}/django-nodemeister":
     ensure   => present,
     provider => git,
-    source   => 'https://github.com/coxmediagroup/nodemeister.git',
+    source   => $git_url,
     revision => $::nodemeister_version,
     owner    => $user,
     group    => $group,
