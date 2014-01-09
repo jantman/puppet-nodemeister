@@ -291,7 +291,7 @@ class nodemeister::install(
   vcsrepo { "${installdir}/django-nodemeister":
     ensure   => present,
     provider => git,
-    source   => 'https://github.com/coxmediagroup/nodemeister.git',
+    source   => $git_url,
     revision => $::nodemeister_version,
     owner    => $user,
     group    => $group,
