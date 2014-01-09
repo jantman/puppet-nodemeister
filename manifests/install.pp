@@ -264,7 +264,6 @@ class nodemeister::install(
       'iniparse==0.3.1',
       'jsonfield==0.9.17',
       'mimeparse==0.1.3',
-      'newrelic==1.11.0.55',
       'psycopg2',
       'python-cjson==1.0.5',
       'python-dateutil==2.1',
