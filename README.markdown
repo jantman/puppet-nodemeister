@@ -14,6 +14,13 @@ damage things, in your environment. Hopefully this will be fixed soon.**
 Configuration
 -------------
 
+Usage
+-----
+
+Note that, at this time, unless specified otherwise, this module will install the
+current 'master' branch of NodeMeister, and should not upgrade it ever without
+being specifically told to.
+
 Notes
 -----
 I haven't found a way to automate the database creation/update yet. So once this is mostly
