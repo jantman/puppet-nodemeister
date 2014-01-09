@@ -282,7 +282,7 @@ class nodemeister::install(
   # https://github.com/cuker/django-fullhistory/pull/3
   # Until that's merged and released to PyPI, we need to install the branch
   # that PR is based off of.
-  $fullhistory_egg = "git+http://github.com/RobCombs/django-fullhistory.git@0.3.2#egg=fullhistory"
+  $fullhistory_egg = "git+https://github.com/RobCombs/django-fullhistory.git@0.3.2#egg=fullhistory"
   exec { 'install-fullhistory-fork':
     user      => $user,
     group     => $group,
