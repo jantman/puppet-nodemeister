@@ -1,6 +1,10 @@
 # == Class: nodemeister::autosign
 #
-# Install and cron script to generate autosign.conf from all nodes in NodeMeister ENC.
+# Install Policy-Based Autosigning script on PuppetMaster, to autosign
+# certificate requests for all nodes in NodeMeister ENC.
+#
+# See https://docs.puppetlabs.com/puppet/3.latest/reference/ssl_autosign.html#policy-based-autosigning
+# and https://docs.puppetlabs.com/references/3.latest/configuration.html#autosign
 #
 # === Parameters:
 # If not specified in the class declaration, these parameters recieve their
@@ -17,6 +21,10 @@
 # [*python_bin*]
 #   which python to run the script with
 #   (default '/usr/bin/env python')
+#
+# [*puppet_user*]
+#   the user that the puppetmaster runs as
+#   (defualt $nodemeister::params::puppet_user)
 #
 # === Variables:
 #
@@ -45,31 +53,24 @@
 class nodemeister::autosign(
   $enc_host        = undef,
   $puppet_confdir  = $nodemeister::params::puppet_confdir,
-  $python_bin      = '/usr/bin/env python'
+  $python_bin      = '/usr/bin/env python',
+  $puppet_user     = $nodemeister::params::puppet_user
 ) inherits nodemeister::params {
 
   validate_string($enc_host) # make sure it's a string
   validate_re($enc_host, '^.+$') # make sure it's 1 char or longer
   validate_absolute_path($puppet_confdir)
 
-  $autosign_conf = "${puppet_confdir}/autosign.conf"
-
   # Template uses:
   # - $python_bin
-  file {'nodemeister_autosign_conf.py':
+  # - $enc_host
+  file {'nodemeister_autosign.py':
     ensure  => present,
-    path    => "${puppet_confdir}/nodemeister_autosign_conf.py",
-    owner   => 'root',
+    path    => "${puppet_confdir}/nodemeister_autosign.py",
+    owner   => $puppet_user,
     group   => 'root',
     mode    => '0775',
-    content => template('nodemeister/nodemeister_autosign_conf.py.erb'),
-  }
-
-  cron {'nodemeister_autosign_conf.py':
-    ensure  => present,
-    command => "${puppet_confdir}/nodemeister_autosign_conf.py -e ${enc_host} -f ${autosign_conf}",
-    user    => 'root',
-    minute  => '*/5',
+    content => template('nodemeister/nodemeister_autosign.py.erb'),
   }
 
 }

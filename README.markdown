@@ -40,3 +40,5 @@ At the moment, this requires a patched version of django-fullhistory that only
 exists inside CMGd. Maybe we can get a PR started for that... should talk to
 rcombs and mransom. Until then, due to the limitations of the
 python::virtualenv type, we need to install fullhistory separately.
+
+Autosigning of certificates requires Puppet 3.4.0+

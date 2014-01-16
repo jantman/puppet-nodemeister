@@ -1,0 +1,42 @@
+#!<%= @python_bin %>
+#
+# Puppet Policy-Based Autosigning Script for the NodeMeister ENC.
+#
+# Auto-signs any CSR for a node whose hostname is in NodeMeister.
+#
+# See https://docs.puppetlabs.com/puppet/3/reference/ssl_autosign.html#policy-based-autosigning
+# and https://docs.puppetlabs.com/references/3.latest/configuration.html#autosign
+#
+#############################################################################################
+#
+# WARNING - WARNING - WARNING
+# This file is managed by Puppet and any local changes will be overwritten AND will force a
+#  restart of the service!!!
+#
+#############################################################################################
+
+import sys
+import requests
+from datetime import datetime
+import platform
+import getpass
+
+enc_host = "<%= @enc_host %>" # templated by puppet
+
+if len(sys.argv) < 2:
+   print("USAGE: nodemeister_autosign.py <certname>")
+   sys.exit(2)
+
+certname = str(sys.argv[1])
+
+url = "http://%s/enc/nodes/" % enc_host
+r = requests.get(url)
+if r.status_code != 200:
+    sys.stderr.write("ERROR: request to %s returned %d\n" % (url, r.status_code))
+    sys.exit(3)
+j = r.json()
+for node in j:
+    if str(node['hostname']) == certname:
+        print("certificate for %s autosigned by %s (hostname in %s)" % (certname, __file__, enc_host))
+        sys.exit(0)
+sys.exit(1)
