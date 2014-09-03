@@ -103,7 +103,7 @@
 #   (default: $nodemeister::params::ldap_require_group)
 #
 # [*ldap_superuser_group_dn*]
-#   (optional) string, DN of group that contains Django app superusers, like 'cn=admins,ou=groups,dc=example,dc=com'
+#   (optional) list, DNs of group that contains Django app superusers, like 'cn=admins,ou=groups,dc=example,dc=com'
 #   (default: $nodemeister::params::ldap_superuser_group_dn)
 #
 # === Variables:
@@ -189,13 +189,14 @@ class nodemeister::install(
     validate_string($ldap_group_search_dn)
     validate_re($ldap_group_search_dn, '^.*(\S+).*$')
     validate_string($ldap_require_group)
-    validate_string($ldap_superuser_group_dn)
+
+    if(!is_array($ldap_superuser_group_dn)) {
+      $ldap_superuser_group_dn = [$ldap_superuser_group_dn]
+    }
+    validate_array($ldap_superuser_group_dn)
   }
   if($ldap_require_group != '') {
     validate_re($ldap_require_group, '^.*(\S+).*$')
-  }
-  if($ldap_superuser_group_dn != '') {
-    validate_re($ldap_superuser_group_dn, '^.*(\S+).*$')
   }
 
   # make docroot
