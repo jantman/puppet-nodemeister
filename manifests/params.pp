@@ -57,7 +57,7 @@ class nodemeister::params {
   $ldap_user_attr           = 'uid'
   $ldap_group_search_dn     = ''
   $ldap_require_group       = ''
-  $ldap_superuser_group_dn  = [],
+  $ldap_superuser_group_dn  = []
   $puppet_confdir           = '/etc/puppet'
   $puppet_conf              = '/etc/puppet/puppet.conf'
   $puppet_user              = 'puppet'
