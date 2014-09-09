@@ -103,7 +103,7 @@
 #   (default: $nodemeister::params::ldap_require_group)
 #
 # [*ldap_superuser_group_dn*]
-#   (optional) string, DN of group that contains Django app superusers, like 'cn=admins,ou=groups,dc=example,dc=com'
+#   (optional) array, DNs of group that contains Django app superusers, like 'cn=admins,ou=groups,dc=example,dc=com'
 #   (default: $nodemeister::params::ldap_superuser_group_dn)
 #
 # === Variables:
@@ -189,13 +189,14 @@ class nodemeister::install(
     validate_string($ldap_group_search_dn)
     validate_re($ldap_group_search_dn, '^.*(\S+).*$')
     validate_string($ldap_require_group)
-    validate_string($ldap_superuser_group_dn)
+
+    if(!is_array($ldap_superuser_group_dn)) {
+      $ldap_superuser_group_dn = [$ldap_superuser_group_dn]
+    }
+    validate_array($ldap_superuser_group_dn)
   }
   if($ldap_require_group != '') {
     validate_re($ldap_require_group, '^.*(\S+).*$')
-  }
-  if($ldap_superuser_group_dn != '') {
-    validate_re($ldap_superuser_group_dn, '^.*(\S+).*$')
   }
 
   # make docroot
@@ -256,7 +257,7 @@ class nodemeister::install(
       'Markdown==2.3.1',
       'PyYAML==3.10',
       'anyjson==0.3.1',
-      'django-auth-ldap==1.1.4',
+      'django-auth-ldap==1.2.1',
       'django-filter==0.6',
       'django-jsonfield==0.9.10',
       'django-tastypie==0.9.14',
@@ -282,7 +283,7 @@ class nodemeister::install(
   # https://github.com/cuker/django-fullhistory/pull/3
   # Until that's merged and released to PyPI, we need to install the branch
   # that PR is based off of.
-  $fullhistory_egg = "git+https://github.com/RobCombs/django-fullhistory.git@0.3.2#egg=fullhistory"
+  $fullhistory_egg = 'git+https://github.com/RobCombs/django-fullhistory.git@0.3.2#egg=fullhistory'
   exec { 'install-fullhistory-fork':
     user      => $user,
     group     => $group,

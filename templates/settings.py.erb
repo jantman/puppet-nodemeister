@@ -62,7 +62,11 @@ AUTH_LDAP_USER_ATTR_MAP = {
 
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
     "is_staff": "<%= @ldap_require_group %>",
-    "is_superuser": "<%= @ldap_superuser_group_dn %>"
+    "is_superuser": [
+        <% @ldap_superuser_group_dn.each do |value| %>
+        "<%= value %>",
+        <% end %>
+    ]
 }
 
 # Use LDAP group membership to calculate group permissions.
