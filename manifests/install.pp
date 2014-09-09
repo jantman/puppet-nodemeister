@@ -103,7 +103,7 @@
 #   (default: $nodemeister::params::ldap_require_group)
 #
 # [*ldap_superuser_group_dn*]
-#   (optional) list, DNs of group that contains Django app superusers, like 'cn=admins,ou=groups,dc=example,dc=com'
+#   (optional) array, DNs of group that contains Django app superusers, like 'cn=admins,ou=groups,dc=example,dc=com'
 #   (default: $nodemeister::params::ldap_superuser_group_dn)
 #
 # === Variables:

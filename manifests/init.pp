@@ -218,9 +218,11 @@ class nodemeister(
     validate_string($ldap_require_group)
 
     if(!is_array($ldap_superuser_group_dn)) {
-      $ldap_superuser_group_dn = [$ldap_superuser_group_dn]
+      $ldap_superuser_group_dn_arr = [$ldap_superuser_group_dn]
+    } else {
+      $ldap_superuser_group_dn_arr = $ldap_superuser_group_dn
     }
-    validate_array($ldap_superuser_group_dn)
+    validate_array($ldap_superuser_group_dn_arr)
   }
   if($ldap_require_group != '') {
     validate_re($ldap_require_group, '^.*(\S+).*$')
@@ -298,7 +300,7 @@ class nodemeister(
     ldap_user_attr          => $ldap_user_attr,
     ldap_group_search_dn    => $ldap_group_search_dn,
     ldap_require_group      => $ldap_require_group,
-    ldap_superuser_group_dn => $ldap_superuser_group_dn,
+    ldap_superuser_group_dn => $ldap_superuser_group_dn_arr,
     before                  => Class['nodemeister::apache'],
   }
 
