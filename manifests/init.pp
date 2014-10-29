@@ -263,10 +263,10 @@ class nodemeister(
 
   if ($manage_database == true) {
     class { 'nodemeister::database':
-      database_name          => $database_name,
-      database_username      => $database_username,
-      database_password      => $database_password,
-      before                 => Class['nodemeister::apache'],
+      database_name     => $database_name,
+      database_username => $database_username,
+      database_password => $database_password,
+      before            => Class['nodemeister::apache'],
     }
   }
 
