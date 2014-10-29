@@ -17,6 +17,10 @@
 #   (string) a crontab-style hour specification of how often to run the backup script
 #   (default: '*/12', every 12 hours)
 #
+# [*pg_dump_path*]
+#   (string, absolute path) the path to the pg_dump binary to use
+#   (default: '/usr/bin/pg_dump')
+#
 # === Variables:
 #
 # This module uses no global variables.
@@ -45,19 +49,22 @@
 class nodemeister::backup (
   $save_dir  = undef,
   $keep_days = 30,
-  $cron_hour = '*/12') {
+  $cron_hour = '*/12',
+  $pg_dump_path = '/usr/bin/pg_dump',
+) {
   require nodemeister
 
   validate_absolute_path($save_dir)
   validate_re($keep_days, '^[0-9]+$')
+  validate_absolute_path($pg_dump_path)
 
   $script_path = "${nodemeister::installdir}/backup_nodemeister.sh"
 
   file { $save_dir:
-    ensure  => directory,
-    owner   => $nodemeister::params::user,
-    group   => $nodemeister::params::group,
-    mode    => '0777',
+    ensure => directory,
+    owner  => $nodemeister::params::user,
+    group  => $nodemeister::params::group,
+    mode   => '0777',
   }
 
   # cron to run this. How do we allow a variable for how often to run? Do we just say every X hours, pass in X, use "*/${X}" ???
@@ -96,6 +103,7 @@ class nodemeister::backup (
   # - $database_username
   # - $database_name
   # - $pgpass_path
+  # - $pg_dump_path
   file { 'backup_nodemeister.sh':
     ensure  => present,
     path    => $script_path,

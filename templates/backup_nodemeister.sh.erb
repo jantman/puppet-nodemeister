@@ -20,6 +20,7 @@ HOST=<%= @database_host %>
 PORT=<%= @database_port %>
 USERNAME=<%= @database_username %>
 DB_NAME=<%= @database_name %>
+PG_DUMP_PATH=<%= @pg_dump_path %>
 export PGPASSFILE=<%= @pgpass_path %>
 # END puppet templated values
 
@@ -39,7 +40,7 @@ onexit() {
 trap onexit EXIT
 
 # do the database dump
-pg_dump --file=${BACKUP_FILE} --format=custom --oids --lock-wait-timeout=${LOCK_WAIT_TIMEOUT} --host=${HOST} --port=${PORT} --username=${USERNAME} --no-password ${DB_NAME}
+$PG_DUMP_PATH --file=${BACKUP_FILE} --format=custom --oids --lock-wait-timeout=${LOCK_WAIT_TIMEOUT} --host=${HOST} --port=${PORT} --username=${USERNAME} --no-password ${DB_NAME}
 
 if [[ ! -f ${BACKUP_FILE} ]]
 then
